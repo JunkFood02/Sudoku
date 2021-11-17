@@ -1,24 +1,20 @@
-#include <time.h>
-#include <stdlib.h>
-#include "painter.h"
-int getRandom();
-int getRandomMod(int);
-int generateSudoku();
-int solveSudoku(int, int, int);
-int putValue(int, int, int, int);
-int clearValue(int, int, int);
-int generatePuzzle(int);
+#include "sudoku.h"
+
 int Matrix[10][10];
 int block[10][10], row[10][10], column[10][10];
-int progress = 11;
+int levelNum[4] = {10, 15, 20, 25};
 int flag = 0;
+int level, progress;
 int main()
 {
     srand(time(NULL));
+    level = Start();
     generateSudoku();
-    //draw(Matrix);
-    draw(Matrix);
-    generatePuzzle(20);
+    progress = levelNum[level];
+    generatePuzzle(progress);
+    while (progress)
+    {
+        }
     draw(Matrix);
 }
 int generateSudoku()
