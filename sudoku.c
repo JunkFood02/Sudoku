@@ -1,10 +1,9 @@
-#include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include "painter.c"
+#include "painter.h"
 int getRandom();
-int generateSudoku(int);
-int solveSudoku(int, int);
+int generateSudoku();
+int fillSudoku(int, int);
 int putValue(int, int, int);
 int clearValue(int, int, int);
 int Matrix[10][10];
@@ -14,15 +13,13 @@ int flag = 0;
 int main()
 {
     srand(time(NULL));
-    generateSudoku(11);
+    generateSudoku();
     //draw(Matrix);
-    for (int i = 1; i <= 9; i++)
-        for (int j = 1; j <= 9; j++)
-            solveSudoku(i, j);
     draw(Matrix);
 }
-int generateSudoku(int num)
+int generateSudoku()
 {
+    int num = 11;
     int i, j, newValue;
     while (num)
     {
@@ -36,6 +33,9 @@ int generateSudoku(int num)
             }
         }
     }
+    for (int i = 1; i <= 9; i++)
+        for (int j = 1; j <= 9; j++)
+            fillSudoku(i, j);
     return 0;
 }
 int getRandom()
@@ -83,7 +83,7 @@ int clearValue(int x, int y, int value)
     //printf("clear (%d,%d) value:%d\n", x, y, value);
     return 0;
 }
-int solveSudoku(int i, int j)
+int fillSudoku(int i, int j)
 {
     if (i == 10)
         flag = 1;
@@ -92,9 +92,9 @@ int solveSudoku(int i, int j)
     if (Matrix[i][j])
     {
         if (j == 9)
-            solveSudoku(i + 1, 1);
+            fillSudoku(i + 1, 1);
         else
-            solveSudoku(i, j + 1);
+            fillSudoku(i, j + 1);
     }
     else
     {
@@ -103,9 +103,9 @@ int solveSudoku(int i, int j)
             if (putValue(i, j, k))
             {
                 if (j == 9)
-                    solveSudoku(i + 1, 1);
+                    fillSudoku(i + 1, 1);
                 else
-                    solveSudoku(i, j + 1);
+                    fillSudoku(i, j + 1);
                 clearValue(i, j, k);
             }
         }
