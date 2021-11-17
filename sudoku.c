@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include "painter.h"
 int getRandom();
+int getRandomMod(int);
 int generateSudoku();
-int fillSudoku(int, int);
-int putValue(int, int, int);
+int solveSudoku(int, int, int);
+int putValue(int, int, int, int);
 int clearValue(int, int, int);
+int generatePuzzle(int);
 int Matrix[10][10];
 int block[10][10], row[10][10], column[10][10];
 int progress = 11;
@@ -16,10 +18,12 @@ int main()
     generateSudoku();
     //draw(Matrix);
     draw(Matrix);
+    generatePuzzle(20);
+    draw(Matrix);
 }
 int generateSudoku()
 {
-    int num = 11;
+    int num = 10;
     int i, j, newValue;
     while (num)
     {
@@ -27,22 +31,24 @@ int generateSudoku()
         if (!Matrix[i][j])
         {
             newValue = getRandom();
-            if (putValue(i, j, newValue))
+            if (putValue(i, j, newValue, 1))
             {
                 num--;
             }
         }
     }
-    for (int i = 1; i <= 9; i++)
-        for (int j = 1; j <= 9; j++)
-            fillSudoku(i, j);
+    solveSudoku(1, 1, 1);
     return 0;
 }
 int getRandom()
 {
     return rand() % 9 + 1;
 }
-int putValue(int x, int y, int value)
+int getRandomMod(int mod)
+{
+    return rand() % mod + 1;
+}
+int putValue(int x, int y, int value, int fill)
 {
     int res = 1;
     int blockNum = (y - 1) / 3 * 3 + (x - 1) / 3 + 1;
@@ -66,49 +72,85 @@ int putValue(int x, int y, int value)
         column[x][value] = 1;
         row[y][value] = 1;
         block[blockNum][value] = 1;
-        Matrix[x][y] = value;
+        if (fill)
+            Matrix[x][y] = value;
         //printf("put (%d,%d) value:%d\n", x, y, value);
     }
     return res;
 }
-int clearValue(int x, int y, int value)
+int clearValue(int x, int y, int clear)
 {
     if (flag)
         return 0;
+    int value = Matrix[x][y];
     int blockNum = (y - 1) / 3 * 3 + (x - 1) / 3 + 1;
     column[x][value] = 0;
     row[y][value] = 0;
     block[blockNum][value] = 0;
-    Matrix[x][y] = 0;
+    if (clear)
+        Matrix[x][y] = 0;
     //printf("clear (%d,%d) value:%d\n", x, y, value);
     return 0;
 }
-int fillSudoku(int i, int j)
+int solveSudoku(int i, int j, int fill)
 {
     if (i == 10)
         flag = 1;
     if (flag)
-        return 0;
+        return 1;
     if (Matrix[i][j])
     {
         if (j == 9)
-            fillSudoku(i + 1, 1);
+            solveSudoku(i + 1, 1, fill);
         else
-            fillSudoku(i, j + 1);
+            solveSudoku(i, j + 1, fill);
     }
     else
     {
         for (int k = 1; k <= 9; k++)
         {
-            if (putValue(i, j, k))
+            if (putValue(i, j, k, fill))
             {
                 if (j == 9)
-                    fillSudoku(i + 1, 1);
+                    solveSudoku(i + 1, 1, fill);
                 else
-                    fillSudoku(i, j + 1);
-                clearValue(i, j, k);
+                    solveSudoku(i, j + 1, fill);
+                clearValue(i, j, fill);
             }
         }
     }
     return 0;
+}
+int generatePuzzle(int level)
+{
+    int x, y, temp;
+    while (level)
+    {
+        x = getRandom();
+        y = getRandom();
+        if (!Matrix[x][y])
+            continue;
+        temp = Matrix[x][y];
+        for (int i = 1; i <= 9; i++)
+        {
+            if (i == temp)
+                continue;
+            flag = 0;
+            clearValue(x, y, 1);
+            if (putValue(x, y, i, 1))
+            {
+                if (solveSudoku(1, 1, 0))
+                {
+                    putValue(x, y, temp, 1);
+                    break;
+                }
+            }
+            else
+            {
+                level--;
+                break;
+            }
+        }
+    }
+    return 1;
 }
