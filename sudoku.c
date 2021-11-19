@@ -8,6 +8,8 @@ int flag = 0;
 int level, progress, getNum;
 int main()
 {
+    time_t tt1, tt2;
+    tt1 = time(NULL);
     clear();
     srand(time(NULL));
     level = Start();
@@ -21,7 +23,9 @@ int main()
     {
         progress += InputNumber();
     }
-    printf("\nYou solved this Sudoku!\n");
+
+    tt2 = time(NULL);
+    printf("\nYou solved this Sudoku in %ld seconds!\n", tt2 - tt1);
     return 0;
 }
 int generateSudoku()
@@ -194,7 +198,7 @@ int InputNumber()
         clear();
         draw(Matrix);
         printf("Invalid Input!\n");
-        return InputNumber(Matrix);
+        return InputNumber();
     }
     if (c[2] == 'D')
     {
@@ -203,14 +207,14 @@ int InputNumber()
             clear();
             draw(Matrix);
             printf("Position %c%d is empty.\n", c[0], n1);
-            return InputNumber(Matrix);
+            return InputNumber();
         }
         else if (Matrix[n1][n0] > 0)
         {
             clear();
             draw(Matrix);
             printf("Number of Position %c%d cannot be clear.\n", c[0], n1);
-            return InputNumber(Matrix);
+            return InputNumber();
         }
         clear();
         clearNumber(n1, n0);
@@ -224,7 +228,7 @@ int InputNumber()
         {
             draw(Matrix);
             printf("Position %c%d has already a number.\n", c[0], n1);
-            return InputNumber(Matrix);
+            return InputNumber();
         }
         else if (checkLegalWithMsg(n1, n0, n2))
         {
@@ -235,7 +239,7 @@ int InputNumber()
         else
         {
             draw(Matrix);
-            return InputNumber(Matrix);
+            return InputNumber();
         }
     }
     else
@@ -243,7 +247,7 @@ int InputNumber()
         clear();
         draw(Matrix);
         printf("Invalid Input!\n");
-        return InputNumber(Matrix);
+        return InputNumber();
     }
 }
 
@@ -255,17 +259,21 @@ int checkLegal(int x, int y, int value)
 void fillNumber(int x, int y, int value)
 {
     int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
-
+    Matrix[x][y] = value;
+    if (value < 0)
+        value = -value;
     column[x][value] = 1;
     row[y][value] = 1;
     block[blockNum][value] = 1;
-    Matrix[x][y] = value;
+
     //printf("write %d into %c%d\n", value, y + 'A' - 1, x);
 }
 void clearNumber(int x, int y)
 {
     int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
     int value = Matrix[x][y];
+    if (value < 0)
+        value = -value;
     column[x][value] = 0;
     row[y][value] = 0;
     block[blockNum][value] = 0;
