@@ -14,6 +14,7 @@
 #define UNDERLINE "\e[4m"
 #define CYAN "\e[1;36m"
 #define BLUE "\e[1;34m"
+#define REVERSE "\e[7m"
 
 void draw(int Matrix[10][10]);
 

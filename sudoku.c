@@ -2,20 +2,19 @@
 
 int Matrix[10][10];
 int tempMatrix[10][10];
-int block[10][10], row[10][10], column[10][10];
-int levelNum[5] = {10, 20, 30, 40, 50};
+int block[10][10], row[10][10], column[10][10], mark[10][10];
+int levelNum[5] = {10, 20, 30, 42, 64};
+char difficulty[5][20] = {"Very Easy", "Easy", "Normal", "Hard", "Very Hard"};
 int flag = 0;
 int level, progress, getNum;
+time_t tt1, tt2;
+
 int main()
 {
-    time_t tt1, tt2;
-    tt1 = time(NULL);
     clear();
-    srand(time(NULL));
     level = Start();
     generateSudoku();
     //draw(Matrix);
-    memcpy(tempMatrix, Matrix, sizeof(Matrix));
     progress = levelNum[level];
     generatePuzzle(progress);
     draw(Matrix);
@@ -30,6 +29,14 @@ int main()
 }
 int generateSudoku()
 {
+    tt1 = time(NULL);
+    srand(tt1);
+    memset(Matrix, 0, sizeof(Matrix));
+    memset(row, 0, sizeof(row));
+    memset(block, 0, sizeof(block));
+    memset(column, 0, sizeof(column));
+    memset(mark, 0, sizeof(mark));
+    flag = 0;
     int num = 10;
     int i, j, newValue;
     while (num)
@@ -46,6 +53,7 @@ int generateSudoku()
         }
     }
     fillSudoku(1, 1);
+    memcpy(tempMatrix, Matrix, sizeof(Matrix));
     return 1;
 }
 int getRandom()
@@ -62,7 +70,9 @@ void fillSudoku(int i, int j)
     if (i == 10)
         flag = 1;
     if (flag)
+    {
         return;
+    }
     if (Matrix[i][j])
     {
         if (j == 9)
@@ -121,11 +131,15 @@ void checkSolution(int i, int j)
 }
 int generatePuzzle(int progress)
 {
-    int x, y, temp;
+
+    int x = 1, y = 0, temp, cnt = 0;
+    int start1 = clock();
     while (progress)
     {
+        if (cnt == 81)
+            return 1;
         x = getRandom(), y = getRandom();
-        if (!Matrix[x][y])
+        if (!Matrix[x][y] || mark[x][y])
             continue;
         temp = Matrix[x][y];
         clearNumber(x, y);
@@ -151,18 +165,25 @@ int generatePuzzle(int progress)
         if (!flag)
         {
             progress--;
+            cnt++;
+        }
+        else
+        {
+            mark[x][y] = 1;
+            cnt++;
         }
     }
     return 1;
 }
 int Start()
 {
-    printf("Soduku\nInput the level of Puzzle:\n");
+    printf("" REVERSE "Soduku" NONE "\nInput the level of Puzzle:\n");
     printf("[0]Very Easy [1]Easy [2]Normal [3]Hard [4]Very Hard\n");
     int n;
     scanf("%d", &n);
     if (n >= 0 && n <= 4)
     {
+        printf("Generate Sudoku Puzzle for Difficulty [%s]\n", difficulty[n]);
         return n;
     }
     else

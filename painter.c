@@ -24,7 +24,7 @@ void draw(int Matrix[10][10])
             if (Matrix[i][j] > 0)
                 printf("" GREEN "%2d" NONE "", Matrix[i][j]);
             else if (Matrix[i][j] < 0)
-                printf("" BLUE "%2d" NONE "", -Matrix[i][j]);
+                printf("" CYAN "%2d" NONE "", -Matrix[i][j]);
             else
             {
                 printf(" " UNDERLINE " " NONE "");
@@ -38,5 +38,5 @@ void draw(int Matrix[10][10])
         if (i % 3 == 0)
             printf("    ——————————————————————\n");
     }
-    //printf("total :%d \n", cnt);
+    //printf("total :%d \n", 81 - cnt);
 }
