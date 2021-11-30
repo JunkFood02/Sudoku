@@ -8,11 +8,14 @@
 #include <stdio.h>
 
 #define GREEN "\e[1;32m"
-#define BLANK "\e[1;30m"
+#define GREY "\e[1;30m"
 #define NONE "\e[0m"
 #define CLEAR "e[1;1He[2J"
 #define UNDERLINE "\e[4m"
 #define CYAN "\e[1;36m"
+#define PURPLE "\e[1;35m"
+#define RED "\e[1;31m"
+#define WHITE "\e[1;37m"
 #define BLUE "\e[1;34m"
 #define REVERSE "\e[7m"
 

@@ -6,7 +6,7 @@ int block[10][10], row[10][10], column[10][10], mark[10][10];
 int levelNum[5] = {10, 20, 30, 42, 64};
 char difficulty[5][20] = {"Very Easy", "Easy", "Normal", "Hard", "Very Hard"};
 int flag = 0;
-int level, progress, getNum;
+int level, progress;
 time_t tt1, tt2;
 
 int main()
@@ -14,7 +14,6 @@ int main()
     clear();
     level = Start();
     generateSudoku();
-    //draw(Matrix);
     progress = levelNum[level];
     generatePuzzle(progress);
     draw(Matrix);
@@ -22,7 +21,6 @@ int main()
     {
         progress += InputNumber();
     }
-
     tt2 = time(NULL);
     printf("\nYou solved this Sudoku in %ld seconds!\n", tt2 - tt1);
     return 0;
@@ -52,7 +50,7 @@ int generateSudoku()
             }
         }
     }
-    fillSudoku(1, 1);
+    solveSudoku(1, 1, 1);
     memcpy(tempMatrix, Matrix, sizeof(Matrix));
     return 1;
 }
@@ -60,25 +58,19 @@ int getRandom()
 {
     return rand() % 9 + 1;
 }
-int getRandomMod(int mod)
-{
-    return rand() % mod + 1;
-}
 
-void fillSudoku(int i, int j)
+void solveSudoku(int i, int j, int FillOut)
 {
     if (i == 10)
         flag = 1;
     if (flag)
-    {
         return;
-    }
     if (Matrix[i][j])
     {
         if (j == 9)
-            fillSudoku(i + 1, 1);
+            solveSudoku(i + 1, 1, FillOut);
         else
-            fillSudoku(i, j + 1);
+            solveSudoku(i, j + 1, FillOut);
     }
     else
     {
@@ -88,52 +80,20 @@ void fillSudoku(int i, int j)
             {
                 fillNumber(i, j, k);
                 if (j == 9)
-                    fillSudoku(i + 1, 1);
+                    solveSudoku(i + 1, 1, FillOut);
                 else
-                    fillSudoku(i, j + 1);
-                if (flag)
+                    solveSudoku(i, j + 1, FillOut);
+                if (flag && FillOut)
                     return;
                 clearNumber(i, j);
             }
         }
     }
-    return;
 }
-void checkSolution(int i, int j)
-{
-    if (i == 10)
-        flag = 1;
-    if (flag)
-        return;
-    if (Matrix[i][j])
-    {
-        if (j == 9)
-            checkSolution(i + 1, 1);
-        else
-            checkSolution(i, j + 1);
-    }
-    else
-    {
-        for (int k = 1; k <= 9; k++)
-        {
-            if (checkLegal(i, j, k))
-            {
-                fillNumber(i, j, k);
-                if (j == 9)
-                    checkSolution(i + 1, 1);
-                else
-                    checkSolution(i, j + 1);
-                clearNumber(i, j);
-            }
-        }
-    }
-    return;
-}
+
 int generatePuzzle(int progress)
 {
-
-    int x = 1, y = 0, temp, cnt = 0;
-    int start1 = clock();
+    int x, y, temp, cnt = 0;
     while (progress)
     {
         if (cnt == 81)
@@ -151,7 +111,7 @@ int generatePuzzle(int progress)
             if (checkLegal(x, y, i))
             {
                 fillNumber(x, y, i);
-                checkSolution(1, 1);
+                solveSudoku(1, 1, 0);
                 if (flag)
                 {
                     clearNumber(x, y);
@@ -183,25 +143,21 @@ int Start()
     scanf("%d", &n);
     if (n >= 0 && n <= 4)
     {
-        printf("Generate Sudoku Puzzle for Difficulty [%s]\n", difficulty[n]);
+        printf("Generate Sudoku Puzzle for Difficulty [" WHITE "%s" NONE "]\n", difficulty[n]);
         return n;
     }
     else
     {
-        return invalidInput(Start);
+        clear();
+        printf("Invalid Input!\n");
+        return Start();
     }
-}
-int invalidInput(int func())
-{
-    clear();
-    printf("Invalid Input!\n");
-    return func();
 }
 int InputNumber()
 {
-    printf("\nInput the Position with an Operation:\n");
-    printf("Insert: A23 put 3 into Row A Column 2\n");
-    printf("Delete: C4D remove number from Row C Column 4\n");
+    printf("\nInput a Position with an Operation:\n");
+    printf("Insert: " CYAN "A23" NONE " put 3 into Row A Column 2\n");
+    printf("Delete: " BLUE "C4D" NONE " remove number from Row C Column 4\n");
     char c[100];
     scanf("%3s", c);
     if (!strcmp(c, "IDK"))
@@ -277,6 +233,7 @@ int checkLegal(int x, int y, int value)
     int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
     return !(column[x][value] || row[y][value] || block[blockNum][value]);
 }
+
 void fillNumber(int x, int y, int value)
 {
     int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
@@ -286,9 +243,8 @@ void fillNumber(int x, int y, int value)
     column[x][value] = 1;
     row[y][value] = 1;
     block[blockNum][value] = 1;
-
-    //printf("write %d into %c%d\n", value, y + 'A' - 1, x);
 }
+
 void clearNumber(int x, int y)
 {
     int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
@@ -299,22 +255,6 @@ void clearNumber(int x, int y)
     row[y][value] = 0;
     block[blockNum][value] = 0;
     Matrix[x][y] = 0;
-    //printf("clear %d from %c%d\n", value, y + 'A' - 1, x);
-}
-void markNumber(int x, int y, int value)
-{
-    int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
-
-    column[x][value] = 1;
-    row[y][value] = 1;
-    block[blockNum][value] = 1;
-}
-void clearMark(int x, int y, int value)
-{
-    int blockNum = (x - 1) / 3 * 3 + (y - 1) / 3 + 1;
-    column[x][value] = 0;
-    row[y][value] = 0;
-    block[blockNum][value] = 0;
 }
 int checkLegalWithMsg(int x, int y, int value)
 {
